@@ -1066,17 +1066,17 @@ type prop =
     /// instead of extracting it from the event arguments. Fractional numbers are rounded to the nearest integral value.
     static member inline onChange (handler: int -> unit) =
         Interop.mkAttr "onChange" (fun (ev: Event) ->
-            if Interop.isTypeofNumber (!!ev.target?value) then
-                // round the value to get only integers
-                let value : double = !!ev.target?value
-                handler (unbox<int> (Math.Round value))
+            match Double.TryParse !!ev.target?value with
+            | true, value -> handler (unbox<int> (Math.Round value))
+            | false, _ -> ()
         )
     /// Same as `onChange` that takes an event as input but instead lets you deal with the float changed from the `input` element directly when the input type is a number
     /// instead of extracting it from the event arguments.
     static member inline onChange (handler: float -> unit) =
         Interop.mkAttr "onChange" (fun (ev: Event) ->
-            if Interop.isTypeofNumber (!!ev.target?value)
-            then handler (!!ev.target?value)
+            match Double.TryParse !!ev.target?value with
+            | true, value -> handler value
+            | false, _ -> ()
         )
 
     /// Same as `onChange` but let's you deal with the `checked` value that has changed from the `input` element directly instead of extracting it from the event arguments.
